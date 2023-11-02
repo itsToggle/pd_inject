@@ -12,7 +12,7 @@
     "versions" : [
         {
             "name": "Download",
-            "results": 2,
+            "results": 1,
             "rules" : [
                 "release['languages'] == ['EN']",
                 "bool(regex.search('(EXTENDED|REMASTERED|DIRECTORS|THEATRICAL|UNRATED|UNCUT|CRITERION|ANNIVERSARY|COLLECTORS|LIMITED|SPECIAL|DELUXE|SUPERBIT|RESTORED|REPACK)',release['title'],regex.I))",
@@ -27,7 +27,7 @@
         },
         {
             "name": "Download 2160p",
-            "results": 2,
+            "results": 1,
             "rules" : [
                 "release['languages'] == ['EN']",
                 "bool(regex.search('(HDR|Do?Vi?)',release['title'],regex.I))",
