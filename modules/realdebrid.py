@@ -90,6 +90,7 @@ def download(release):
         if len(response['links']) == len(ids):
             release['title'] = response['filename']
             release['download'] = response['links']
+            break
         else:
             logger.error(f"this file combination of release {release['title']} is a .rar archive - trying again")
             session.request(
@@ -99,6 +100,7 @@ def download(release):
             )
             continue
     if len(release['download']) > 0:
+        logger.info(f"added {release['title']} to realdebrid")
         for link in release['download']:
             response = session.post(
                 url='https://api.real-debrid.com/rest/1.0/unrestrict/link',
