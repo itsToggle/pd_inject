@@ -1,0 +1,48 @@
+{
+    "plex email" : "your plex email address",
+    "plex password" : "your plex password",
+    "plex library url" : "your plex server address",
+    "plex library token" : "a plex token with permission to refresh your plex server libraries",
+    "plex partial refresh" : true,
+    "plex refresh sections" : [
+        "5",
+        "1"
+    ],
+    "plex refresh delay" : 1,
+    "versions" : [
+        {
+            "name": "Download",
+            "results": 2,
+            "rules" : [
+                "release['languages'] == ['EN']",
+                "bool(regex.search('(EXTENDED|REMASTERED|DIRECTORS|THEATRICAL|UNRATED|UNCUT|CRITERION|ANNIVERSARY|COLLECTORS|LIMITED|SPECIAL|DELUXE|SUPERBIT|RESTORED|REPACK)',release['title'],regex.I))",
+                "release['source'] == 'RARBG'",
+                "release['size']"
+            ],
+            "filters" : [
+                "not bool(regex.search('([^A-Z0-9]|HD|HQ)(CAM|T(ELE)?(S(YNC)?|C(INE)?)|ADS|HINDI)([^A-Z0-9]|RIP|$)',release['title'],regex.I))",
+                "'EN' in release['languages'] or 'EN' in release['languages']",
+                "release['resolution'] == 1080"
+            ]
+        },
+        {
+            "name": "Download 2160p",
+            "results": 2,
+            "rules" : [
+                "release['languages'] == ['EN']",
+                "bool(regex.search('(HDR|Do?Vi?)',release['title'],regex.I))",
+                "bool(regex.search('(EXTENDED|REMASTERED|DIRECTORS|THEATRICAL|UNRATED|UNCUT|CRITERION|ANNIVERSARY|COLLECTORS|LIMITED|SPECIAL|DELUXE|SUPERBIT|RESTORED|REPACK)',release['title'],regex.I))",
+                "release['source'] == 'RARBG'",
+                "release['size']"
+            ],
+            "filters" : [
+                "not bool(regex.search('([^A-Z0-9]|HD|HQ)(CAM|T(ELE)?(S(YNC)?|C(INE)?)|ADS|HINDI)([^A-Z0-9]|RIP|$)',release['title'],regex.I))",
+                "'EN' in release['languages'] or 'DE' in release['languages']",
+                "release['resolution'] == 2160"
+            ]
+        }
+
+    ],
+    "realdebrid api key": "your realdebrid api key",
+    "torrentio manifest": "stremio://torrentio.strem.fun/providers=yts,eztv,rarbg,1337x,thepiratebay,kickasstorrents,torrentgalaxy,magnetdl,horriblesubs,nyaasi,tokyotosho,anidex|qualityfilter=scr,cam/manifest.json"
+}
