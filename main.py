@@ -175,16 +175,14 @@ def handle_availability(server=None):
         for i, release in enumerate(local_releases[:server.RESULTS]):
             metadata += [{
                 "ratingKey": "2785",
-                # f"/library/metadata/{guid.split('/')[-1]}",
-                # json.dumps(release,default=lambda o: o.__dict__)))}",
                 "key": f"/download/{requests.utils.quote(unique_id)}/{i}",
                 "librarySectionID": 2,
                 "librarySectionKey": "/library/sections/2",
                 "guid": guid,
-                "librarySectionTitle": "tV Shows",
+                "librarySectionTitle": server.SERVERNAME,
                 "Media": [
                     {
-                        "videoResolution": release['title'],
+                        "videoResolution": (release['title'] if len(mock_server) == 1 else release['resolution']),
                     },
                 ],
             },]
