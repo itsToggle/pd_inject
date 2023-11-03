@@ -32,10 +32,14 @@ def scrape(type, imdb, s, e):
     Returns:
         list: A list of dictionaries, each containing details of a scraped release.
     """
+
     scraped_releases = []
     # Adjust the season and episode values according to the provided information
     s = 1 if not s else s[0] if isinstance(s, list) else s
     e = 1 if not e else e
+
+    logger.info(f'scraping releases for {type}: {imdb}{f":{s}:{e}" if type == "show" else ""}')
+
     # Convert 'show' type to 'series' for the API endpoint
     type = "series" if type == "show" else "movie"
 

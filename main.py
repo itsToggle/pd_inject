@@ -5,7 +5,7 @@ This module sets up a mock plex server using Flask, ngrok for public HTTPS acces
 
 from flask import Flask, request
 from flask_caching import Cache
-from pyngrok import ngrok, conf
+from pyngrok import ngrok, conf, process
 import threading
 import logging
 import json
@@ -21,6 +21,7 @@ from settings import settings
 import time
 import copy
 import uuid
+import os
 
 # Initialize a session object from the common module for HTTP requests
 session = common.session()
@@ -37,10 +38,6 @@ def configure_logging():
     )
 
 
-# Silence the Flask and dicttoxml loggers
-logging.getLogger('flask').setLevel(logging.WARNING)
-logging.getLogger('dicttoxml').setLevel(logging.WARNING)
-
 # Initialize the Flask application
 app = Flask(__name__)
 # Set up caching for the Flask application with simple backend and default timeout
@@ -50,6 +47,14 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple', "CACHE_DEFAULT_TIMEOUT": 300}
 conf.get_default().region = 'us'
 public_url = ngrok.connect(PORT)
 
+# Silence the Flask and dicttoxml loggers
+logging.getLogger('werkzeug').disabled = True
+logging.getLogger('dicttoxml').setLevel(logging.WARNING)
+logging.getLogger('ngrok').disabled = True
+logging.getLogger('pyngrok').disabled = True
+logging.getLogger('process').disabled = True
+process.logger.disabled = True
+process.ngrok_logger.disabled = True
 # Start the Flask application in a separate thread to allow concurrent processing
 threading.Thread(target=app.run, kwargs={
     'use_reloader': False,

@@ -404,6 +404,9 @@ class mockserver:
                 if regex.search(r'(?<=season.index=)(.*?)(?=&)', path, regex.I) else None
 
             e = None  # Initialize episode number as None
+
+            logger.info(f"getting metadata for guid: {guid}")
+
             # Make a GET request to the Plex metadata provider to fetch metadata for the GUID
             response = session.get(
                 f'https://metadata.provider.plex.tv/library/metadata/{guid}?includeUserState=1&X-Plex-Token={self.TOKEN}',
