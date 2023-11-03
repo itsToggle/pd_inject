@@ -53,7 +53,7 @@ public_url = ngrok.connect(PORT)
 # Start the Flask application in a separate thread to allow concurrent processing
 threading.Thread(target=app.run, kwargs={
     'use_reloader': False,
-    'debug': True,
+    'debug': False,
     'port': PORT
 }).start()
 
