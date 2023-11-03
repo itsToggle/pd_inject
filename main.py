@@ -37,6 +37,10 @@ def configure_logging():
     )
 
 
+# Silence the Flask and dicttoxml loggers
+logging.getLogger('flask').setLevel(logging.WARNING)
+logging.getLogger('dicttoxml').setLevel(logging.WARNING)
+
 # Initialize the Flask application
 app = Flask(__name__)
 # Set up caching for the Flask application with simple backend and default timeout
