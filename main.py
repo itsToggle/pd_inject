@@ -47,14 +47,12 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple', "CACHE_DEFAULT_TIMEOUT": 300}
 conf.get_default().region = 'us'
 public_url = ngrok.connect(PORT)
 
-# Silence the Flask and dicttoxml loggers
-logging.getLogger('werkzeug').disabled = True
+# Silence the Flask, Ngrok and dicttoxml loggers
+logging.getLogger('werkzeug').setLevel(logging.WARNING)
 logging.getLogger('dicttoxml').setLevel(logging.WARNING)
-logging.getLogger('ngrok').disabled = True
-logging.getLogger('pyngrok').disabled = True
-logging.getLogger('process').disabled = True
-process.logger.disabled = True
-process.ngrok_logger.disabled = True
+process.logger.setLevel(logging.WARNING)
+process.ngrok_logger.setLevel(logging.WARNING)
+
 # Start the Flask application in a separate thread to allow concurrent processing
 threading.Thread(target=app.run, kwargs={
     'use_reloader': False,
