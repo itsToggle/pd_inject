@@ -450,6 +450,9 @@ class library:
     Attributes:
         URL (str): URL of the real plex server.
         TOKEN (str): Plex token of the real plex server with privileges to perform a library refresh call
+        PARTIAL (bool): A boolean to define wether or not partial or full refreshes should be performed
+        SECTIONS (list(str)): Library section numbers that should be considered to be refreshed
+        DELAY (int): A delay in seconds to wait between adding media and refreshing the server
     """
 
     # Base URL for the Plex library, stripped of any trailing slashes
@@ -457,34 +460,48 @@ class library:
     # Authentication token for the Plex library
     TOKEN = settings.get("plex library token")
 
-    class refresh:
-        """A subclass used to refresh the Plex server libraries after new content has been added.
+    # Determines if a partial refresh is to be performed based on settings
+    PARTIAL = settings.get("plex partial refresh", True)
+    # Specifies which sections of the library should be refreshed
+    SECTIONS = settings.get("plex refresh sections")
+    # Sets a delay before performing the refresh action
+    DELAY = settings.get("plex refresh delay", 0)
 
-        Attributes:
-            PARTIAL (bool): A boolean to define wether or not partial or full refreshes should be performed
-            SECTIONS (list(str)): Library section numbers that should be considered to be refreshed
-            DELAY (int): A delay in seconds to wait between adding media and refreshing the server
-    """
+    def refresh(cls, release):
+        """Execute a library refresh based on the release details.
 
-        # Determines if a partial refresh is to be performed based on settings
-        PARTIAL = settings.get("plex partial refresh", True)
-        # Specifies which sections of the library should be refreshed
-        SECTIONS = settings.get("plex refresh sections")
-        # Sets a delay before performing the refresh action
-        DELAY = settings.get("plex refresh delay", 0)
-
-        @staticmethod
-        def call(paths):
-            """
-            Perform a refresh call for each path specified in the 'paths' list.
-
-            Parameters:
-                paths (list): A list of tuples where each tuple contains a section key and a list of folder paths.
-            """
+        Parameters:
+            release (dict): A dictionary containing details of the added release.
+        """
+        try:
+            names = []
+            # Fetch the current library sections
+            response = session.get(
+                url=f'{library.URL}/library/sections/?X-Plex-Token={library.TOKEN}',
+                headers={'Accept': 'application/json'}
+            )
+            paths = []
+            response = json.loads(response.content)
+            for section_ in response['MediaContainer']['Directory']:
+                # Check if the section is eligible for refresh based on the release type
+                if section_['key'] in library.SECTIONS and release['type'] == section_['type']:
+                    names.append(section_['title'])
+                    folders = []
+                    # Prepare the folder paths for refresh
+                    for location in section_['Location']:
+                        if library.PARTIAL:
+                            folders.append(requests.utils.quote(location['path'] + "/" + release['title']))
+                        else:
+                            folders.append(requests.utils.quote(location['path']))
+                    paths.append([section_['key'], folders])
+            # Delay the refresh if specified
+            time.sleep(library.DELAY)
+            # Log the library sections that are being refreshed
+            logger.info(f'refreshing {release["type"]} library section/s: "' + '","'.join(names) + '"')
             for path in paths:
                 section = path[0]
                 folders = path[1]
-                if library.refresh.PARTIAL:
+                if library.PARTIAL:
                     for folder in folders:
                         refreshing = True
                         while refreshing:
@@ -523,41 +540,5 @@ class library:
                     except Exception as e:
                         logger.exception(f"An error occurred during the library refresh call: {e}")
                         return
-
-        def __new__(cls, release):
-            cls.__name__ = "refresh"
-            """
-            Construct a new instance of the refresh subclass and execute the library refresh based on the release details.
-
-            Parameters:
-                release (dict): A dictionary containing details of the added release.
-            """
-            try:
-                names = []
-                # Fetch the current library sections
-                response = session.get(
-                    url=f'{library.URL}/library/sections/?X-Plex-Token={library.TOKEN}',
-                    headers={'Accept': 'application/json'}
-                )
-                paths = []
-                response = json.loads(response.content)
-                for section_ in response['MediaContainer']['Directory']:
-                    # Check if the section is eligible for refresh based on the release type
-                    if section_['key'] in library.refresh.SECTIONS and release['type'] == section_['type']:
-                        names.append(section_['title'])
-                        folders = []
-                        # Prepare the folder paths for refresh
-                        for location in section_['Location']:
-                            if library.refresh.PARTIAL:
-                                folders.append(requests.utils.quote(location['path'] + "/" + release['title']))
-                            else:
-                                folders.append(requests.utils.quote(location['path']))
-                        paths.append([section_['key'], folders])
-                # Delay the refresh if specified
-                time.sleep(library.refresh.DELAY)
-                # Log the library sections that are being refreshed
-                logger.info(f'refreshing {release["type"]} library section/s: "' + '","'.join(names) + '"')
-                # Call the refresh function with the prepared paths
-                library.refresh.call(paths)
-            except Exception as e:
-                logger.exception(f"An error occurred while preparing for the library refresh: {e}")
+        except Exception as e:
+            logger.exception(f"An error occurred while preparing for the library refresh: {e}")
