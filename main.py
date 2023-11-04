@@ -132,7 +132,7 @@ data_store = {}
 
 @app.route('/media/providers', methods=['GET'])
 @app.route('/<path:server>/media/providers', methods=['GET'])
-def handle_providers(server=mock_servers[0].IDENTIFIER):
+def providers(server=mock_servers[0].IDENTIFIER):
     """Handle requests for media providers.
 
     This route is used to determine if a server is online via regular polling.
@@ -158,7 +158,7 @@ def handle_providers(server=mock_servers[0].IDENTIFIER):
 
 
 @app.route('/<path:server>/library/metadata/<path:guid>', methods=['GET'])
-def handle_metadata(server, guid):
+def metadata(server, guid):
     """Handle requests for metadata.
 
     This (currently unused) route can be used to fake the presence of media items in your mocked libraries
@@ -184,7 +184,7 @@ def handle_metadata(server, guid):
 @app.route('/library/all', methods=['GET'])
 @app.route('/<path:server>/library/all', methods=['GET'])
 @cache.cached(timeout=300, query_string=True)
-def handle_availability(server=None):
+def availability(server=None):
     """Handle requests for library availability.
 
     This route checks the availability of items in the mocked library by scraping releases
@@ -272,7 +272,7 @@ def handle_availability(server=None):
 
     content, code, headers = format(content, request)
 
-    logger.info(f"took {time.time() - start_time}s")
+    logger.info(f"took {time.time() - start_time:.2f}s")
 
     return content, code, headers
 
@@ -280,7 +280,7 @@ def handle_availability(server=None):
 @app.route('/hubs/search', methods=['GET'])
 @app.route('/<path:server>/hubs/search', methods=['GET'])
 @cache.cached(timeout=300, query_string=True)
-def handle_search(server=None):
+def search(server=None):
     """Handle search requests.
 
     This route searches torrentio by search query and returns search results by scraping releases
@@ -294,6 +294,7 @@ def handle_search(server=None):
     Returns:
         The response content, status code, and headers as formatted by the `format` function.
     """
+    start_time = time.time()
     mock_server = next((s for s in mock_servers if s.IDENTIFIER == server), None)
     query = request.args.get('query', '')
     # Debounce the search
@@ -398,12 +399,13 @@ def handle_search(server=None):
     }
 
     content, code, headers = format(content, request)
+    logger.info(f"took {time.time() - start_time:.2f}s")
     return content, code, headers
 
 
 @app.route('/download/<path:id>/<path:num>', methods=['GET'])
 @app.route('/<path:server>/download/<path:id>/<path:num>', methods=['GET'])
-def handle_download(server=mock_servers[0].IDENTIFIER, id="", num=0):
+def download(server=mock_servers[0].IDENTIFIER, id="", num=0):
     """Handle download requests.
 
     This (only internally used) route actually downloads the releases
@@ -416,6 +418,7 @@ def handle_download(server=mock_servers[0].IDENTIFIER, id="", num=0):
     Returns:
         The response content, status code, and headers as formatted by the `format` function.
     """
+    start_time = time.time()
     releases = data_store[id]
     for release in releases[int(num):]:
         if realdebrid.download(release):
@@ -423,11 +426,12 @@ def handle_download(server=mock_servers[0].IDENTIFIER, id="", num=0):
     plex.library.refresh(release)
     content = {}
     content, code, headers = format(content, request)
+    logger.info(f"took {time.time() - start_time:.2f}s")
     return content, code, headers
 
 
 @app.route('/<path:server>/system/agents', methods=['GET'])
-def handle_agents(server):
+def agents(server):
     """Handle search requests.
 
     This (currently unused) route would be called when accessing the mock servers "agent" settings.
@@ -449,7 +453,7 @@ def handle_agents(server):
 
 @app.route('/photo/:/transcode', methods=['GET'])
 @app.route('/<path:server>/photo/:/transcode', methods=['GET'])
-def handle_transcode(server):
+def transcode(server):
     """Handle photo transcode requests.
 
     This route is used by Plex to request a client specific resize of metadata pictures.
@@ -476,7 +480,7 @@ def handle_transcode(server):
 @app.route('/:/prefs', methods=['GET'])
 @app.route('/<path:server>/library/sections/2/prefs', methods=['GET'])
 @app.route('/<path:server>/:/prefs', methods=['GET'])
-def handle_prefs(server=mock_servers[0].IDENTIFIER):
+def prefs(server=mock_servers[0].IDENTIFIER):
     """Handle preference requests.
 
     These routes are used by Plex to request a servers preferences.
@@ -506,7 +510,7 @@ def handle_prefs(server=mock_servers[0].IDENTIFIER):
 @app.route('/<path:server>/updater/check', methods=['GET', 'PUT'])
 @app.route('/<path:server>/accounts/1', methods=['GET'])
 @app.route('/<path:server>/myplex/account', methods=['GET'])
-def handle_empty(server=mock_servers[0].IDENTIFIER):
+def empty(server=mock_servers[0].IDENTIFIER):
     """Handle keep-alive requests.
 
     These routes are used by Plex to determine a variety of things, but they can be handled by empty responses.
