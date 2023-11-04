@@ -525,6 +525,7 @@ class library:
                         return
 
         def __new__(cls, release):
+            cls.__name__ = "refresh"
             """
             Construct a new instance of the refresh subclass and execute the library refresh based on the release details.
 
