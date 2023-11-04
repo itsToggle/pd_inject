@@ -23,6 +23,9 @@ import copy
 import uuid
 import os
 
+# Create a logger object for this module
+logger = logging.getLogger(__name__)
+
 # Initialize a session object from the common module for HTTP requests
 session = common.session()
 
@@ -195,6 +198,8 @@ def handle_availability(server=None):
     Returns:
         The response content, status code, and headers as formatted by the `format` function.
     """
+    start_time = time.time()
+
     mock_server = next((s for s in mock_servers if s.IDENTIFIER == server), None)
 
     path = requests.utils.unquote(request.full_path)
@@ -264,7 +269,11 @@ def handle_availability(server=None):
             "Metadata": metadata
         }
     }
+
     content, code, headers = format(content, request)
+
+    logger.info(f"took {time.time() - start_time}s")
+
     return content, code, headers
 
 
