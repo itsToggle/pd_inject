@@ -459,7 +459,6 @@ class library:
     URL = settings.get("plex library url").rstrip("/")
     # Authentication token for the Plex library
     TOKEN = settings.get("plex library token")
-
     # Determines if a partial refresh is to be performed based on settings
     PARTIAL = settings.get("plex partial refresh", True)
     # Specifies which sections of the library should be refreshed
@@ -467,7 +466,7 @@ class library:
     # Sets a delay before performing the refresh action
     DELAY = settings.get("plex refresh delay", 0)
 
-    def refresh(cls, release):
+    def refresh(release):
         """Execute a library refresh based on the release details.
 
         Parameters:
