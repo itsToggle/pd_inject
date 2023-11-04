@@ -466,6 +466,7 @@ class library:
     # Sets a delay before performing the refresh action
     DELAY = settings.get("plex refresh delay", 0)
 
+    @staticmethod
     def refresh(release):
         """Execute a library refresh based on the release details.
 
