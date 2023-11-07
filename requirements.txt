@@ -1,0 +1,6 @@
+flask
+flask_caching
+pyngrok
+requests
+regex
+dicttoxml
